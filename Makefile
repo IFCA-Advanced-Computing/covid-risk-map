@@ -26,8 +26,15 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
-data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+#data: requirements
+data: 
+#	mkdir data/output
+#	dacot em2
+#	dacot em3
+#	mv data/output/* data/processed
+#	rmdir data/output
+	curl -o data/raw/datos_provincias.csv https://cnecovid.isciii.es/covid19/resources/datos_provincias.csv
+	$(PYTHON_INTERPRETER) src/data/make_dataset.py data
 
 ## Delete all compiled Python files
 clean:

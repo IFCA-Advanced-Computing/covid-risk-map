@@ -15,4 +15,4 @@ matplotlib
 scikit-learn
 joblib
 
-dacot
+dacot>=2.0.0
