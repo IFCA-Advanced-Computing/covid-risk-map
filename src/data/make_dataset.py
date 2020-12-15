@@ -15,6 +15,7 @@ LOG = logging.getLogger(__name__)
 
 FILES = [
     "raw/datos_provincias.csv",
+    "raw/province-population.csv",
     "external/provincias-ine.csv",
     "raw/province_flux_intra.csv",
     "raw/province_flux_inter.csv",
@@ -32,6 +33,39 @@ def check_data(base_dir):
 
     if error:
         sys.exit(1)
+
+
+def read_population(base_dir):
+    df = pandas.read_csv(
+        base_dir / "raw" / "province-population.csv",
+        sep=";"
+    )
+    df = df.loc[
+        (df["Sexo"] == "Total") &
+        (df["Provincias"] != "Total") &
+        (df["Periodo"] == 2019)
+    ]
+    df["province id"] = df["Provincias"].apply(lambda x: int(x.split()[0]))
+    df["Total"] = df["Total"].apply(lambda x: int(x.replace(".", "")))
+    df = df[["province id", "Total"]]
+
+    return df
+
+
+def calculate_incidence(df, base_dir):
+    pop = read_population(base_dir)
+
+    df = df.merge(
+        pop,
+        on="province id"
+    )
+
+    for w in (7, 14):
+        df[f"incidence {w}"] = df.groupby("province")["cases new (pcr)"].apply(lambda x: x.rolling(window=w).sum())  # noqa
+        df[f"incidence {w}"] = (df[f"incidence {w}"] / df["Total"] * 100000).round().fillna(value=0).astype("int")  # noqa
+
+    df = df[df.columns.drop("Total")]
+    return df
 
 
 def prepare_dataset(base_dir):
@@ -68,6 +102,9 @@ def prepare_dataset(base_dir):
     new_cols = [i.replace("acc", "inc") for i in cols]
     df[new_cols] = df.groupby(['province'])[cols].pct_change() * 100
     df[new_cols] = df[new_cols].fillna(value=0)
+
+    # Now add incidence data
+    df = calculate_incidence(df, base_dir)
 
     f = base_dir / "processed" / "provinces.csv"
     LOG.info(f"Writing province data to '{f}', {df.shape[0]} observations")
