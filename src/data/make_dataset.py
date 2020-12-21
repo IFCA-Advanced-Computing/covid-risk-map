@@ -171,10 +171,67 @@ def prepare_dataset(base_dir):
         left_on=["date", "province"],
         right_on=["date", "province destination"]
     )
+    merged = merged[merged.columns.drop("province destination")]
 
     f = base_dir / "processed" / "provinces-mobility.csv"
     LOG.info(f"Writing province +  mobility data to '{f}', {merged.shape[0]} "
              "observations")
+    merged.to_csv(
+        f,
+        index=False,
+    )
+
+    # Join mobility and incidence dataset, adding the incidence of the origin
+    aux_mob = mob_inter.merge(
+        df,
+        left_on=["province origin", "date"],
+        right_on=["province", "date"]
+    )
+
+    # Now pivot table and add correct multiindex
+    aux_mob = aux_mob.pivot(
+        index=["date", "province destination"],
+        columns="province origin",
+        values=["incidence 7", "incidence 14", "flux"]
+    ).reset_index()
+    aux_mob["flux"] = aux_mob["flux"].fillna(value=0)
+
+    # Switch levels so that province is on top of flux and incidences
+    aux_mob.columns = aux_mob.columns.swaplevel()
+
+    # Change df to multi index in order to join
+    df.columns = pandas.MultiIndex.from_product([df.columns, [""]])
+
+    merged = df.merge(
+        aux_mob,
+        left_on=[("date", ""), ("province", "")],
+        right_on=[("", "date"), ("", "province destination")]
+    )
+
+    merged = merged[merged.columns.drop([('', 'date'),
+                                         ('', 'province destination')])]
+    # Order things
+    cols = [
+        ('date', ''),
+        ('province', ''),
+        ('province id', ''),
+        ('region', ''),
+        ('region id', ''),
+        ('cases new (pcr)', ''),
+        ('cases acc (pcr)', ''),
+        ('cases inc (pcr)', ''),
+        ('incidence 14', ''),
+        ('incidence 7', ''),
+    ]
+
+    aux = list(set(merged) - set(cols))
+    aux.sort()
+    cols.extend(aux)
+    merged = merged[cols]
+
+    f = base_dir / "processed" / "provinces-mobility-incidence.csv"
+    LOG.info("Writing province +  mobility data + incidence on origin to "
+             f"'{f}', {merged.shape[0]} observations")
     merged.to_csv(
         f,
         index=False,
