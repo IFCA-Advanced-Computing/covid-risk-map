@@ -33,6 +33,7 @@ data:
 #	dacot em3
 #	mv data/output/* data/processed
 #	rmdir data/output
+	curl -o data/raw/province-population.csv "https://www.ine.es/jaxiT3/files/t/es/csv_bdsc/2852.csv?nocab=1"
 	curl -o data/raw/datos_provincias.csv https://cnecovid.isciii.es/covid19/resources/datos_provincias.csv
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data
 
