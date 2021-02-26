@@ -19,6 +19,10 @@ FILES = [
     "external/provincias-ine.csv",
     "raw/province_flux_intra.csv",
     "raw/province_flux_inter.csv",
+    # Mapping files
+    "raw/municipios-cantabria.json",
+    "raw/COVID19_municipalizado.csv",
+    "raw/population-cantabria.csv",
 ]
 
 
@@ -240,6 +244,29 @@ def prepare_dataset(base_dir):
     )
 
 
+def calculate_incidence_cantabria(base_dir):
+    pob = pandas.read_csv(
+        base_dir / "raw" / "population-cantabria.csv",
+        sep=";",
+        dtype={"Codigo": str},
+    )
+
+    df = pandas.read_csv(
+        base_dir / "raw" / "COVID19_municipalizado.csv",
+        sep=";",
+        dtype={"Codigo": str},
+    )
+
+    df = df.merge(pob, on=["Codigo"])
+    df["incidence rel"] = df["Casos"] / df["Total"]
+    df["incidence 100k"] = df["Casos"] * 100000 / df["Total"]
+
+    f = base_dir / "processed" / "cantabria-incidence.csv"
+    df.to_csv(
+        f,
+        index=False)
+
+
 @click.command()
 @click.argument('base_dir', type=click.Path(exists=True))
 def main(base_dir):
@@ -250,7 +277,10 @@ def main(base_dir):
 
     base_dir = pathlib.Path(base_dir)
     check_data(base_dir)
+
     prepare_dataset(base_dir)
+
+    calculate_incidence_cantabria(base_dir)
 
 
 if __name__ == '__main__':

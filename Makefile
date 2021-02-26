@@ -35,7 +35,11 @@ data: requirements
 #	rmdir data/output
 	curl -o data/raw/province-population.csv "https://www.ine.es/jaxiT3/files/t/es/csv_bdsc/2852.csv?nocab=1"
 	curl -o data/raw/casos_tecnica_provincias.csv https://cnecovid.isciii.es/covid19/resources/casos_tecnica_provincia.csv
+	curl -o data/raw/COVID19_municipalizado.csv https://serviweb.scsalud.es:10443/ficheros/COVID19_municipalizado.csv
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data
+
+visualize: requirements
+	$(PYTHON_INTERPRETER) src/visualization/visualize.py
 
 ## Delete all compiled Python files
 clean:
