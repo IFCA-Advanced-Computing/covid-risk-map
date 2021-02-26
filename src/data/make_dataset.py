@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format=log_fmt)
 LOG = logging.getLogger(__name__)
 
 FILES = [
-    "raw/datos_provincias.csv",
+    "raw/casos_tecnica_provincias.csv",
     "raw/province-population.csv",
     "external/provincias-ine.csv",
     "raw/province_flux_intra.csv",
@@ -70,12 +70,13 @@ def calculate_incidence(df, base_dir):
 
 def prepare_dataset(base_dir):
     df = pandas.read_csv(
-        base_dir / "raw" / "datos_provincias.csv",
+        base_dir / "raw" / "casos_tecnica_provincias.csv",
         keep_default_na=False
     )
+
     columns = ["province iso", "date",
                "cases new", "cases new (pcr)", "cases new (ac)",
-               "cases new (other)", "cases new (unk)"]
+               "cases new (ag)", "cases new (elisa)", "cases new (unk)"]
     df.columns = columns
 
     # Only use the colums that we need
@@ -188,9 +189,10 @@ def prepare_dataset(base_dir):
         right_on=["province", "date"]
     )
 
+    aux_mob = aux_mob.reset_index()
     # Now pivot table and add correct multiindex
     aux_mob = aux_mob.pivot(
-        index=["date", "province destination"],
+        index=["date", "province destination", "index"],
         columns="province origin",
         values=["incidence 7", "incidence 14", "flux"]
     ).reset_index()
