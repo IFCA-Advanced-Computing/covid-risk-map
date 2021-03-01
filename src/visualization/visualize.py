@@ -14,13 +14,13 @@ def main(data_dir, mapbox_access_token):
         data_dir / "processed" / "cantabria-incidence.csv"
     )
 
-    with open(data_dir / "raw" / "municipios-cantabria.json", "r") as f:
+    with open(data_dir / "raw" / "municipios-cantabria.geojson", "r") as f:
         municipalities = json.load(f)
 
     fig = plotly.graph_objects.Figure(
         plotly.graph_objects.Choroplethmapbox(
             geojson=municipalities,
-            featureidkey="properties.inecode",
+            featureidkey="properties.COD_INE",
             locations=incidence["Codigo"],
             z=incidence["Casos"],
             text=incidence['Municipio'],

@@ -6,6 +6,7 @@ import sys
 import click
 from dotenv import find_dotenv, load_dotenv
 import pandas
+import numpy as np
 
 from src.data import utils
 
@@ -20,7 +21,7 @@ FILES = [
     "raw/province_flux_intra.csv",
     "raw/province_flux_inter.csv",
     # Mapping files
-    "raw/municipios-cantabria.json",
+    "raw/municipios-cantabria.geojson",
     "raw/COVID19_municipalizado.csv",
     "raw/population-cantabria.csv",
 ]
@@ -260,6 +261,15 @@ def calculate_incidence_cantabria(base_dir):
     df = df.merge(pob, on=["Codigo"])
     df["incidence rel"] = df["Casos"] / df["Total"]
     df["incidence 100k"] = df["Casos"] * 100000 / df["Total"]
+
+    # Add NaN data for the Macomunidad de Cabuerniga
+    # We use zeros because Mapbox doesn't plot NaN/None data
+    cabuer = pandas.DataFrame(np.zeros_like(df[0:1]), columns=df.columns)
+    k = ['Fecha', 'Codigo', 'Municipio', 'Municio', 'Ano']
+    v = df.loc[0, 'Fecha'], 39000, 'COMUNIDAD CAMPOO-CABUERNIGA',\
+        'Comunidad Campoo-Cabuerniga', df.loc[0, 'Ano']
+    cabuer.at[0, k] = v
+    df = pandas.concat([cabuer, df], axis=0, ignore_index=True)
 
     f = base_dir / "processed" / "cantabria-incidence.csv"
     df.to_csv(
