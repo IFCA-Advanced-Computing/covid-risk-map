@@ -259,15 +259,18 @@ def calculate_incidence_cantabria(base_dir):
     )
 
     df = df.merge(pob, on=["Codigo"])
-    df["incidence rel"] = df["Casos"] / df["Total"]
-    df["incidence 100k"] = df["Casos"] * 100000 / df["Total"]
+    df = df.drop(['Ano', 'Municipio', 'Metrica'], axis=1)  # remove useless columns
+    # (Ano:census year, Municipio: duplicated with Municio, Metrica: Total census)
+    df = df.rename(columns={'Municio': 'Municipio', 'Total': 'Poblacion'})
+
+    df['incidence rel'] = df['Casos'] / df['Poblacion']
+    df['incidence 100k'] = df['Casos'] * 100000 / df['Poblacion']
 
     # Add NaN data for the Macomunidad de Cabuerniga
     # We use zeros because Mapbox doesn't plot NaN/None data
     cabuer = pandas.DataFrame(np.zeros_like(df[0:1]), columns=df.columns)
-    k = ['Fecha', 'Codigo', 'Municipio', 'Municio', 'Ano']
-    v = df.loc[0, 'Fecha'], 39000, 'COMUNIDAD CAMPOO-CABUERNIGA',\
-        'Comunidad Campoo-Cabuerniga', df.loc[0, 'Ano']
+    k = ['Fecha', 'Codigo', 'Municipio']
+    v = df.loc[0, 'Fecha'], 39000, 'Comunidad Campoo-Cabuerniga'
     cabuer.at[0, k] = v
     df = pandas.concat([cabuer, df], axis=0, ignore_index=True)
 
