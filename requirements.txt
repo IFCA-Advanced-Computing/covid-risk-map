@@ -20,3 +20,4 @@ dacot>=2.0.0
 
 # Mapping
 plotly
+dash

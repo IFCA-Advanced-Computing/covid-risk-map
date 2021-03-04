@@ -55,7 +55,7 @@ data: requirements
 
 ## Visualize map (requires to set the MAPBOX_TOKEN variable in the .env file)
 visualize: requirements
-	$(ACTIVATE_VENV); $(PYTHON_INTERPRETER) src/visualization/visualize.py
+	$(ACTIVATE_VENV); $(PYTHON_INTERPRETER) src/visualization/visualize_dash.py
 
 ## Delete all compiled Python files and remove virtualenv
 clean:
