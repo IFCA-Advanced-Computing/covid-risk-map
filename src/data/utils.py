@@ -32,7 +32,7 @@ iso_map = {
     "LU": "Lugo",
     "M": "Madrid",
     "MA": "Málaga",
-    "ME": "Melilla",
+    "ML": "Melilla",
     "MU": "Murcia",
     "NA": "Navarra",
     "NC": "Navarra",
