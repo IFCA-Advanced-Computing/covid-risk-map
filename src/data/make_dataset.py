@@ -69,7 +69,7 @@ def calculate_incidence(df, base_dir):
         df[f"incidence {w}"] = df.groupby("province")["cases new (pcr)"].apply(lambda x: x.rolling(window=w).sum())  # noqa
         df[f"incidence {w}"] = (df[f"incidence {w}"] / df["Total"] * 100000).round().fillna(value=0).astype("int")  # noqa
 
-    df = df[df.columns.drop("Total")]
+    df = df.drop("Total", axis=1)
     return df
 
 
@@ -83,6 +83,10 @@ def prepare_dataset(base_dir):
                "cases new", "cases new (pcr)", "cases new (ac)",
                "cases new (ag)", "cases new (elisa)", "cases new (unk)"]
     df.columns = columns
+
+    # Combine the 'NA' and 'NC' iso codes (both corresponding to Navarra)
+    df = df.replace('NC', 'NA')
+    df = df.groupby(['province iso', 'date']).sum().reset_index()
 
     # Only use the colums that we need
     columns = ["province iso", "date", "cases new (pcr)"]
@@ -138,7 +142,7 @@ def prepare_dataset(base_dir):
         # Read mobility, change to columns, with rows as destination
         mob_origin = pandas.DataFrame(columns=["date", "province destination"])
         for date in mob_inter["date"].unique():
-            for p in df["province"].unique():
+            for p in sorted(df["province"].unique()):
                 aux = mob_inter.loc[
                     (mob_inter["province destination"] == p) &
                     (mob_inter["date"] == date),
@@ -168,16 +172,25 @@ def prepare_dataset(base_dir):
             mob_by_columns,
             parse_dates=[0],
         )
-        LOG.info("Using existing mobility dataset by columns "
-                 f"{mob_by_columns}, with rows as destination province, "
-                 f"{mob_origin.shape[0]} observations")
+        LOG.warning("Using the cached mobility dataset (with " 
+                    f"{mob_origin.shape[0]} observations) for speed convenience. "
+                    "If you want to generate it again (because you might have "
+                    "updated the flux_inter/intra files), please remove "
+                    f"{mob_by_columns} first and run this script again."
+                    )
+
+    # Sort provinces by name
+    cols = mob_origin.columns
+    cols = list(cols[:2]) + sorted(cols[2:])
+    mob_origin = mob_origin[cols]
 
     merged = df.merge(
         mob_origin,
         left_on=["date", "province"],
         right_on=["date", "province destination"]
     )
-    merged = merged[merged.columns.drop("province destination")]
+    merged = merged.drop("province destination", axis=1)
+    merged = merged.sort_values(by=['province', 'date'])
 
     f = base_dir / "processed" / "provinces-mobility.csv"
     LOG.info(f"Writing province +  mobility data to '{f}', {merged.shape[0]} "
@@ -193,15 +206,16 @@ def prepare_dataset(base_dir):
         left_on=["province origin", "date"],
         right_on=["province", "date"]
     )
-
     aux_mob = aux_mob.reset_index()
+
     # Now pivot table and add correct multiindex
-    aux_mob = aux_mob.pivot(
-        index=["date", "province destination", "index"],
+    aux_mob = aux_mob.pivot_table(
+        index=["date", "province destination"],
         columns="province origin",
-        values=["incidence 7", "incidence 14", "flux"]
+        values=["incidence 7", "incidence 14", "flux"],
+        fill_value=0,
+        aggfunc='sum'
     ).reset_index()
-    aux_mob["flux"] = aux_mob["flux"].fillna(value=0)
 
     # Switch levels so that province is on top of flux and incidences
     aux_mob.columns = aux_mob.columns.swaplevel()
@@ -214,9 +228,9 @@ def prepare_dataset(base_dir):
         left_on=[("date", ""), ("province", "")],
         right_on=[("", "date"), ("", "province destination")]
     )
+    merged = merged.drop([('', 'date'), ('', 'province destination')],
+                         axis=1)
 
-    merged = merged[merged.columns.drop([('', 'date'),
-                                         ('', 'province destination')])]
     # Order things
     cols = [
         ('date', ''),
@@ -243,6 +257,14 @@ def prepare_dataset(base_dir):
         f,
         index=False,
     )
+
+    # View data summary
+    u, c = np.unique(merged['province'], return_counts=True)
+    med = np.median(c)
+    print('Available data for each province:')
+    print('#################################')
+    for i, j in zip(u, c):
+        print(f"{i}: {j} {'*' if j != med else ''}")
 
 
 def calculate_incidence_cantabria(base_dir):
