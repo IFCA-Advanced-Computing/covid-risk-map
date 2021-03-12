@@ -8,14 +8,19 @@ COVID-19 risk map based on mobility and socio-demographic data.
 ## Generate the data
 
 1. Use the [dacot](https://github.com/IFCA/dacot) package to generate the `province_flux_intra.csv` and `province_flux_inter.csv` files. Copy them to the `data/raw` folder in this package.
+   Remove `data/interim/province_flux_by_destination.csv` (if present) so that the mobility dataset is generated afresh in the next step.
 2. Run `make data` to generate the additional data needed to plot everything (that is the covid cases that are updated weekly by the Health Ministry).
 
 After running step 2, `data/processed` will have the following files:
 * `cantabria-incidence.csv`: covid cases in Cantabria, by municipalities, for the most recent date
-* `provinces.csv`: covid cases for all provinces, for all dates
-* `provinces-mobility.csv`: mobility between provinces, for all dates. Columns indicate the provinces where the trip starts, the rows the province where the trips end.
-* `provinces-mobility-incidence.csv`: mobility between provinces, for all dates. Columns indicate the provinces where the trip starts, the rows the province where the trips end. 
- Each province column is divided in three. For example `Zamora` has:
+* `provinces.csv`: covid cases for all provinces, for all dates. Cases are divided in:
+  - `cases new`: newly diagnosed cases
+  - `cases acc`: cumsum of cases since the start of the pandemic
+  - `cases inc`: increment of changes, porcentual changes in accumulated cases
+  - `incidence X`: new cases per 100K persons, summed over last X days
+* `provinces-mobility.csv`: previous info + mobility between provinces, for all dates. Columns indicate the provinces where the trip starts, the rows the province where the trips end.
+* `provinces-mobility-incidence.csv`: previous info + incidence in origin province, for all dates. Columns indicate the provinces where the trip starts (origin), the rows the province where the trips end (destination). 
+ Each province column is divided in three, as a Pandas multiindex dataframe. For example `Zamora` has:
   - `Zamora`: flux coming from Zamora (in persons)
   - `Zamora.1`: incidence at 14 days in Zamora 
   - `Zamora.2`: incidence at 7 days in Zamora
