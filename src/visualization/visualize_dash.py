@@ -28,19 +28,17 @@ import pandas as pd
 def main(data_dir, mapbox_access_token):
 
     # Load data
-    incidence = pd.read_csv(
-        data_dir / "processed" / "cantabria-incidence.csv"
-    )
-
     with open(data_dir / "raw" / "municipios-cantabria.geojson", "r") as f:
         municipalities = json.load(f)
 
+    incidence = pd.read_csv(
+        data_dir / "processed" / "cantabria-incidence.csv"
+    )
     cantabria_metrics = ['Activos', 'Curados', 'Casos', 'Fallecidos', 'incidence rel', 'incidence 100k']
 
     provinces = pd.read_csv(
         data_dir / "processed" / "provinces.csv"
     )
-
     spain_metrics = ['cases new (pcr)', 'cases acc (pcr)', 'cases inc (pcr)', 'incidence 7', 'incidence 14']
 
     # Define Dash app
@@ -48,16 +46,18 @@ def main(data_dir, mapbox_access_token):
 
     app.layout = html.Div(children=[
         html.Div([
-            html.H1(children='Covid Cases in Cantabria (yesterday)'),
+            html.H1(children=f"Covid Cases in Cantabria ({incidence['Fecha'][0]})"),
             html.P("Metric:"),
             dcc.RadioItems(
                 id='cantabria_metric',
                 options=[{'value': x, 'label': x}
                          for x in cantabria_metrics],
-                value=cantabria_metrics[2],
+                value=cantabria_metrics[-1],
                 labelStyle={'display': 'inline-block'}
             ),
-            dcc.Graph(id="choropleth_cantabria", style={"height": "100vh"}),
+            dcc.Graph(id="choropleth_cantabria",
+                      style={"height": "100vh", "width": "90vw"}
+                      ),
             ]),
         html.Div([
             html.H1(children='Daily Covid cases in Spain (averaged by week)'),
@@ -69,7 +69,17 @@ def main(data_dir, mapbox_access_token):
                 value=spain_metrics[-1],
                 labelStyle={'display': 'inline-block'}
             ),
-            dcc.Graph(id="covid_spain", style={"height": "100vh"}),
+            dcc.Graph(id="covid_spain",
+                      style={"height": "100vh"}
+                      ),
+        ]),
+        html.Div([
+            html.H1(children='Mobility data (em2)'),
+            html.Iframe(src="https://flowmap.blue/from-url?flows=https://raw.githubusercontent.com/IFCA/dacot/main/data/output/flowmap-blue/flows.csv&locations=https://raw.githubusercontent.com/IFCA/dacot/main/data/output/flowmap-blue/locations.csv&f=13&col=BurgYl&c=0&bo=100",
+                        style={"height": "100vh", "width": "90vw"},
+                        # height='100%',
+                        # width='100%',
+                        ),
         ]),
     ])
 
