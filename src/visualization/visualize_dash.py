@@ -37,7 +37,7 @@ def main(data_dir, mapbox_access_token):
     cantabria_metrics = ['Activos', 'Curados', 'Casos', 'Fallecidos', 'incidence rel', 'incidence 100k']
 
     provinces = pd.read_csv(
-        data_dir / "processed" / "provinces.csv"
+        data_dir / "processed" / "provinces-incidence.csv"
     )
     spain_metrics = ['cases new (pcr)', 'cases acc (pcr)', 'cases inc (pcr)', 'incidence 7', 'incidence 14']
 
@@ -74,8 +74,8 @@ def main(data_dir, mapbox_access_token):
                       ),
         ]),
         html.Div([
-            html.H1(children='Mobility data (em2)'),
-            html.Iframe(src="https://flowmap.blue/from-url?flows=https://raw.githubusercontent.com/IFCA/dacot/main/data/output/flowmap-blue/flows.csv&locations=https://raw.githubusercontent.com/IFCA/dacot/main/data/output/flowmap-blue/locations.csv&f=13&col=BurgYl&c=0&bo=100",
+            html.H1(children='Mobility data from MITMA'),
+            html.Iframe(src="https://flowmap.blue/from-url?flows=https://raw.githubusercontent.com/IFCA/mitma-covid/main/data/processed/flowmap-blue/flows.csv&locations=https://raw.githubusercontent.com/IFCA/mitma-covid/main/data/processed/flowmap-blue/locations.csv&f=13&col=BurgYl&c=0&bo=100",
                         style={"height": "100vh", "width": "90vw"},
                         # height='100%',
                         # width='100%',
