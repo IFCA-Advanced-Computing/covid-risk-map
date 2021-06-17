@@ -27,9 +27,7 @@ After running step 2, `data/processed` will have the following files:
  
 ## Generate the maps
 
-3. Go to [Mapbox](https://www.mapbox.com/) and open a free account to get a mapbox token. Run:
-`export MAPBOX_TOKEN="your_mapbox_token"` to set it as an environment variable.
-4. Run `make visualize`. This will directly open the maps in your browser. Scroll down the webpage to the different plots.
+3. Run `make visualize`. This will directly open the maps in your browser. Scroll down the webpage to the different plots.
 
 # Data sources
 
@@ -39,4 +37,4 @@ Geographical data:
 
 Statistical data:
 * `province-population.csv`: [INE](https://www.ine.es/jaxiT3/files/t/es/csv_bdsc/2852.csv?nocab=1)
-* `province-population.csv`: [INE](https://www.ine.es/jaxiT3/Tabla.htm?t=2893&L=0)
+* `population-cantabria.csv`: [INE](https://www.ine.es/jaxiT3/Tabla.htm?t=2893&L=0)

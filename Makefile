@@ -49,7 +49,7 @@ data: requirements
 	curl -k -o data/raw/COVID19_municipalizado.csv https://serviweb.scsalud.es:10443/ficheros/COVID19_municipalizado.csv
 	$(ACTIVATE_VENV); $(PYTHON_INTERPRETER) src/data/make_dataset.py data
 
-## Visualize map (requires to set the MAPBOX_TOKEN variable in the .env file)
+## Visualize map
 visualize: requirements
 	$(ACTIVATE_VENV); $(PYTHON_INTERPRETER) src/visualization/visualize_dash.py
 

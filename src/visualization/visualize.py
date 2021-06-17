@@ -1,20 +1,17 @@
+import json
 import pathlib
 
 from dotenv import find_dotenv, load_dotenv
-
-import json
-import os
-
 import pandas
 import plotly
 
 
-def main(data_dir, mapbox_access_token):
+def main(data_dir):
     incidence = pandas.read_csv(
         data_dir / "processed" / "cantabria-incidence.csv"
     )
 
-    with open(data_dir / "raw" / "municipios-cantabria.geojson", "r") as f:
+    with open(data_dir / "external" / "municipios-cantabria.geojson", "r") as f:
         municipalities = json.load(f)
 
     fig = plotly.graph_objects.Figure(
@@ -39,7 +36,6 @@ def main(data_dir, mapbox_access_token):
 
     fig.update_layout(
         mapbox_style="carto-positron",
-        mapbox_accesstoken=mapbox_access_token,
         mapbox_zoom=9,
         mapbox_center={
             "lat": 43.16513048333179,
@@ -59,4 +55,4 @@ if __name__ == '__main__':
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
 
-    main(project_dir / "data", os.environ["MAPBOX_TOKEN"])
+    main(project_dir / "data")

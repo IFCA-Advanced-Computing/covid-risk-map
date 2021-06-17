@@ -12,7 +12,6 @@ app = dash.Dash(__name__,
 
 
 import json
-import os
 import pathlib
 
 import plotly
@@ -25,10 +24,10 @@ from dotenv import find_dotenv, load_dotenv
 import pandas as pd
 
 
-def main(data_dir, mapbox_access_token):
+def main(data_dir):
 
     # Load data
-    with open(data_dir / "raw" / "municipios-cantabria.geojson", "r") as f:
+    with open(data_dir / "external" / "municipios-cantabria.geojson", "r") as f:
         municipalities = json.load(f)
 
     incidence = pd.read_csv(
@@ -114,7 +113,6 @@ def main(data_dir, mapbox_access_token):
             title='COVID-19 Data (Cantabria)',
             autosize=True,
             mapbox_style="carto-positron",
-            mapbox_accesstoken=mapbox_access_token,
             mapbox_zoom=9,
             mapbox_center={
                 "lat": 43.16513048333179,
@@ -164,4 +162,4 @@ if __name__ == '__main__':
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
 
-    main(project_dir / "data", os.environ["MAPBOX_TOKEN"])
+    main(project_dir / "data")
