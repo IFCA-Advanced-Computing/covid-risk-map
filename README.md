@@ -30,3 +30,13 @@ After running step 2, `data/processed` will have the following files:
 3. Go to [Mapbox](https://www.mapbox.com/) and open a free account to get a mapbox token. Run:
 `export MAPBOX_TOKEN="your_mapbox_token"` to set it as an environment variable.
 4. Run `make visualize`. This will directly open the maps in your browser. Scroll down the webpage to the different plots.
+
+# Data sources
+
+Geographical data:
+* `provincias-espana.geojson`: [Geojson of Spain provinces](https://vangdata.carto.com/tables/shapefiles_provincias_espana/public/map) (adapted)
+* `municipios-cantabria.geojson`: [Geojson of Cantabria's municipalities](https://gist.githubusercontent.com/alc32/91d42bce23a2bba4726112ef26beda24/raw/05c6e91f2c2256f465b87f81d9956eeb3fe2ffb6/municipios_cantabria.geojson)
+
+Statistical data:
+* `province-population.csv`: [INE](https://www.ine.es/jaxiT3/files/t/es/csv_bdsc/2852.csv?nocab=1)
+* `province-population.csv`: [INE](https://www.ine.es/jaxiT3/Tabla.htm?t=2893&L=0)

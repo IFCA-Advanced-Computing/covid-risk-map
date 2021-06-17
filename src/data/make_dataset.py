@@ -22,21 +22,23 @@ from dotenv import find_dotenv, load_dotenv
 import numpy as np
 import pandas as pd
 
-from src.data import utils
+import utils
 
 log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(level=logging.INFO, format=log_fmt)
 LOG = logging.getLogger(__name__)
 
 FILES = [
+    # COVID cases
     "raw/casos_tecnica_provincias.csv",
-    "raw/province-population.csv",
-    "external/provincias-ine.csv",
-    "raw/province_flux.csv",
-    # Mapping files
-    "raw/municipios-cantabria.geojson",
     "raw/COVID19_municipalizado.csv",
-    "raw/population-cantabria.csv",
+    # Flux data
+    "raw/province_flux.csv",
+    # Static files
+    "external/provincias-ine.csv",
+    "external/province-population.csv",
+    "external/municipios-cantabria.geojson",
+    "external/population-cantabria.csv",
 ]
 
 
@@ -55,7 +57,7 @@ def check_data(base_dir):
 
 def read_population(base_dir):
     df = pd.read_csv(
-        base_dir / "raw" / "province-population.csv",
+        base_dir / "external" / "province-population.csv",
         sep=";"
     )
     df = df.loc[
@@ -223,7 +225,7 @@ def prepare_dataset(base_dir):
 
 def calculate_incidence_cantabria(base_dir):
     pob = pd.read_csv(
-        base_dir / "raw" / "population-cantabria.csv",
+        base_dir / "external" / "population-cantabria.csv",
         sep=";",
         dtype={"Codigo": str},
     )
